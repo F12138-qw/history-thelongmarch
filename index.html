@@ -1,1 +1,1620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>长征·青春行 | 重走二万五千里</title>
+<meta name="description" content="以17岁红军战士的视角，走过长征七个历史节点，在抉择中理解长征精神。">
+<!--
+  ============================================================
+  长征·青春行 —— 单文件静态网页（HTML + CSS + 原生 JS）
+  使用方法：
+  1. 本文件保存为 index.html（UTF-8 编码），双击即可在浏览器打开；
+  2. 图片放在同级 images/ 文件夹内，文件名见下方 CHAPTERS 数组
+     （ruijin / xiangjiang / zunyi / ludingqiao / jiajinsan / caodi / huishi）；
+  3. 未放图片时，页面会自动显示“图片占位”提示，不影响运行；
+  4. 所有文案集中在【JS 内容数据区】的 CHAPTERS / SUMMARY 中，
+     修改文字只需改那几段，不必动页面结构。
+  ============================================================
+-->
+<style>
+/* ============================================================
+   0. 设计变量：主色暗红 #991010，辅色金色 #c8a048，白色背景
+   ============================================================ */
+:root{
+  --red:#991010;
+  --red-deep:#7c0b0b;
+  --red-dark:#5e0808;
+  --red-soft:#b32222;
+  --gold:#c8a048;
+  --gold-light:#e2cd99;
+  --gold-pale:#f7f0de;
+  --ink:#2b241f;
+  --ink-2:#6b5e51;
+  --ink-3:#9a8b79;
+  --paper:#faf7f2;
+  --line:#e7ded3;
+  --white:#ffffff;
+  --shadow-sm:0 2px 10px rgba(70,30,20,.06);
+  --shadow-md:0 16px 36px rgba(80,20,15,.12);
+  --serif:"Noto Serif SC","Source Han Serif SC","Source Han Serif CN","Songti SC","STSong","SimSun",serif;
+  --sans:-apple-system,"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Noto Sans SC",system-ui,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+  --page:1240px;
+}
 
+*,*::before,*::after{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  font-family:var(--sans);
+  color:var(--ink);
+  background:
+    radial-gradient(1200px 480px at 12% -10%,rgba(200,160,72,.10),transparent 70%),
+    radial-gradient(900px 420px at 100% 0%,rgba(153,16,16,.06),transparent 65%),
+    var(--paper);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.6;
+}
+img{max-width:100%;}
+button{font-family:inherit;}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+}
+
+/* ============================================================
+   1. 顶部导航（暗红渐变 + 金色描边）
+   ============================================================ */
+.site-header{
+  position:sticky;top:0;z-index:50;
+  background:linear-gradient(120deg,#6f0909 0%,#991010 55%,#7c0b0b 100%);
+  color:#fff;
+  box-shadow:0 2px 16px rgba(60,10,10,.28);
+}
+.site-header::after{
+  content:"";display:block;height:3px;
+  background:linear-gradient(90deg,transparent,var(--gold) 20%,#f0dfb4 50%,var(--gold) 80%,transparent);
+}
+.header-inner{
+  max-width:var(--page);margin:0 auto;padding:13px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
+}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand-mark{
+  width:38px;height:38px;border-radius:50%;
+  border:1px solid rgba(226,205,153,.85);
+  display:grid;place-items:center;
+  color:var(--gold-light);font-size:17px;line-height:1;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.18),rgba(0,0,0,.10));
+  flex:0 0 auto;
+}
+.brand-text{display:flex;flex-direction:column;line-height:1.25;}
+.brand-text strong{
+  font-family:var(--serif);font-size:19px;letter-spacing:.16em;font-weight:700;color:#fff;
+}
+.brand-text span{
+  font-size:11px;letter-spacing:.22em;color:rgba(247,235,214,.72);
+}
+.site-nav{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.nav-btn{
+  background:transparent;border:1px solid rgba(255,255,255,.30);
+  color:rgba(255,255,255,.92);border-radius:6px;
+  padding:8px 16px;font-size:13px;letter-spacing:.08em;cursor:pointer;
+  transition:background .25s,border-color .25s,color .25s,transform .25s;
+}
+.nav-btn:hover{border-color:var(--gold);color:var(--gold-light);background:rgba(200,160,72,.14);}
+.nav-btn.is-active{background:rgba(200,160,72,.18);border-color:var(--gold);color:#fff;}
+.nav-btn.ghost-nav{color:rgba(255,255,255,.66);border-color:rgba(255,255,255,.18);}
+
+/* 体力条 */
+.stamina{
+  display:flex;align-items:center;gap:10px;
+  font-size:12px;letter-spacing:.12em;color:#f3e3c5;
+  padding-left:4px;
+}
+.stamina-track{
+  width:112px;height:8px;border-radius:99px;overflow:hidden;
+  background:rgba(0,0,0,.30);box-shadow:inset 0 0 0 1px rgba(255,255,255,.16);
+}
+.stamina-fill{
+  display:block;height:100%;width:100%;border-radius:99px;
+  background:linear-gradient(90deg,#f1dfb3,#c8a048);
+  transition:width .6s cubic-bezier(.2,.8,.2,1),background .3s;
+}
+.stamina-num{
+  font-family:var(--serif);font-size:16px;color:#fff;
+  min-width:2.4em;text-align:right;letter-spacing:0;
+}
+.stamina.is-low .stamina-fill{background:linear-gradient(90deg,#f0c3b6,#d96a5a);}
+.stamina.is-zero .stamina-fill{background:#d95c5c;animation:zeroPulse 1.8s ease-in-out infinite;}
+@keyframes zeroPulse{0%,100%{opacity:.55;}50%{opacity:1;}}
+
+/* ============================================================
+   2. 通用视图与动画
+   ============================================================ */
+.view{display:none;}
+.view.is-active{display:block;animation:viewIn .5s cubic-bezier(.2,.8,.2,1) both;}
+@keyframes viewIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+.btn{
+  font:inherit;font-size:14px;letter-spacing:.06em;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 24px;border-radius:8px;border:1px solid transparent;
+  cursor:pointer;transition:background .28s,color .28s,border-color .28s,
+    transform .28s,box-shadow .28s;
+}
+.btn.primary{
+  background:linear-gradient(135deg,#9c1414,#7f0c0c);
+  color:#f9eeda;border-color:#7f0c0c;
+  box-shadow:0 8px 18px rgba(120,15,15,.18);
+}
+.btn.primary:hover{background:linear-gradient(135deg,#b32222,#8d1010);transform:translateY(-2px);box-shadow:0 12px 24px rgba(120,15,15,.26);}
+.btn.primary:active{transform:translateY(0);}
+.btn.ghost{
+  background:transparent;color:var(--red);border-color:rgba(153,16,16,.32);
+}
+.btn.ghost:hover{background:rgba(153,16,16,.07);border-color:var(--red);transform:translateY(-2px);}
+
+/* ============================================================
+   3. 首页 Hero
+   ============================================================ */
+.hero{
+  position:relative;
+  max-width:var(--page);margin:0 auto;
+  padding:64px 24px 6px;
+}
+.hero::before{
+  content:"";position:absolute;left:24px;top:56px;
+  width:3px;height:74px;background:linear-gradient(180deg,var(--red),rgba(153,16,16,.05));
+}
+.hero-copy{padding-left:26px;max-width:820px;}
+.eyebrow{
+  margin:0 0 14px;font-size:11.5px;font-weight:700;
+  letter-spacing:.34em;color:var(--red);text-transform:uppercase;
+}
+.hero h1{
+  margin:0;font-family:var(--serif);font-weight:700;
+  font-size:clamp(34px,5.4vw,62px);line-height:1.12;
+  letter-spacing:.06em;color:#4a0e0e;
+}
+.hero h1 span{
+  display:block;margin-top:16px;
+  font-family:var(--sans);font-weight:400;
+  font-size:clamp(13px,1.5vw,16px);letter-spacing:.42em;color:var(--gold);
+}
+.hero-lead{
+  margin:24px 0 0;max-width:640px;
+  font-size:15px;line-height:2;color:var(--ink-2);text-align:justify;
+}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px;}
+.hero-meta{
+  display:flex;flex-wrap:wrap;gap:10px 32px;margin-top:36px;
+  padding-top:20px;border-top:1px solid var(--line);
+  font-size:12.5px;color:var(--ink-2);letter-spacing:.04em;
+}
+.hero-meta b{
+  display:block;font-family:var(--serif);font-size:17px;color:var(--red);
+  letter-spacing:.06em;margin-bottom:2px;
+}
+
+/* 首页右侧装饰：竖排诗句（窄屏隐藏，仅作视觉点缀） */
+.hero-aside{
+  position:absolute;right:30px;top:78px;
+  display:flex;align-items:flex-start;gap:18px;
+  pointer-events:none;user-select:none;
+}
+.hero-aside .ha-line{
+  width:1px;height:196px;
+  background:linear-gradient(180deg,rgba(200,160,72,0),var(--gold-light) 20%,rgba(200,160,72,0));
+}
+.ha-poem{
+  margin:0;writing-mode:vertical-rl;text-orientation:upright;
+  font-family:var(--serif);font-size:17px;line-height:2.2;
+  letter-spacing:.3em;color:rgba(122,20,16,.46);
+}
+
+/* ============================================================
+   4. 首页时间轴
+   ============================================================ */
+.timeline-section{max-width:var(--page);margin:0 auto;padding:34px 24px 20px;}
+.section-head{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;
+  padding-bottom:14px;border-bottom:1px solid var(--line);
+}
+.section-head h2{
+  margin:0;font-family:var(--serif);font-size:22px;letter-spacing:.14em;color:#4a0e0e;
+  display:flex;align-items:center;gap:12px;
+}
+.section-head h2::before{content:"";width:10px;height:10px;background:var(--red);transform:rotate(45deg);}
+.progress-note{font-size:12.5px;color:var(--ink-2);letter-spacing:.05em;}
+.progress-note b{font-family:var(--serif);font-size:19px;color:var(--red);margin:0 2px;}
+
+.timeline-shell{position:relative;margin-top:8px;}
+.timeline-viewport{
+  overflow-x:auto;overflow-y:hidden;
+  padding:0 2px 20px;
+  scroll-snap-type:x proximity;
+  cursor:grab;
+  scrollbar-width:thin;
+  scrollbar-color:var(--gold-light) transparent;
+  -webkit-overflow-scrolling:touch;
+}
+.timeline-viewport::-webkit-scrollbar{height:8px;}
+.timeline-viewport::-webkit-scrollbar-track{background:rgba(200,160,72,.10);border-radius:99px;}
+.timeline-viewport::-webkit-scrollbar-thumb{background:var(--gold-light);border-radius:99px;}
+.timeline-viewport::-webkit-scrollbar-thumb:hover{background:var(--gold);}
+.timeline-viewport.dragging{cursor:grabbing;scroll-snap-type:none;user-select:none;}
+.timeline-viewport img{pointer-events:none;-webkit-user-drag:none;}
+
+.tl-list{
+  list-style:none;margin:0;padding:0 6px;
+  display:flex;gap:22px;width:max-content;
+  position:relative;
+}
+/* 贯穿卡片上方的金色时间轴横线 */
+.tl-list::before{
+  content:"";position:absolute;left:0;right:0;top:25px;height:2px;
+  background:linear-gradient(90deg,rgba(200,160,72,.15),var(--gold-light) 12%,var(--gold) 50%,var(--gold-light) 88%,rgba(200,160,72,.15));
+  opacity:.75;pointer-events:none;
+}
+.tl-item{
+  position:relative;width:270px;flex:0 0 auto;
+  padding-top:62px;scroll-snap-align:start;
+}
+.tl-dot{
+  position:absolute;top:4px;left:50%;transform:translateX(-50%);z-index:1;
+  width:44px;height:44px;border-radius:50%;
+  background:var(--paper);border:2px solid var(--gold-light);
+  color:var(--red);font-family:var(--serif);font-weight:700;font-size:14px;
+  display:grid;place-items:center;letter-spacing:.04em;
+  box-shadow:0 0 0 6px var(--paper);
+  transition:border-color .3s,background .3s,color .3s;
+}
+.tl-item.is-done .tl-dot{background:var(--gold-pale);border-color:var(--gold);}
+.tl-item.is-done .tl-dot::after{
+  content:"";position:absolute;right:-4px;bottom:-2px;width:10px;height:10px;
+  border-radius:50%;background:var(--red);border:2px solid var(--paper);
+}
+.tl-card{
+  position:relative;display:block;width:100%;padding:0;
+  text-align:left;background:var(--white);
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  box-shadow:var(--shadow-sm);cursor:pointer;color:inherit;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s,border-color .35s;
+}
+.tl-card:hover,.tl-card:focus-visible{
+  transform:translateY(-6px);border-color:var(--gold);
+  box-shadow:var(--shadow-md);outline:none;
+}
+.tl-thumb{position:relative;aspect-ratio:16/10;background:#f3ece1;overflow:hidden;}
+.tl-thumb .photo-media{position:absolute;inset:0;}
+.tl-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;}
+.tl-card:hover .tl-thumb img{transform:scale(1.05);}
+.tl-status{
+  position:absolute;top:10px;right:10px;z-index:2;
+  font-size:10.5px;letter-spacing:.08em;
+  padding:3px 9px;border-radius:99px;
+  background:rgba(28,18,14,.55);color:rgba(255,255,255,.9);
+  backdrop-filter:blur(2px);
+}
+.tl-status.is-done{background:var(--gold);color:#4a3208;font-weight:700;}
+.tl-body{padding:16px 18px 18px;}
+.tl-date{
+  display:flex;align-items:center;gap:8px;margin:0 0 8px;
+  font-family:var(--serif);font-size:14px;letter-spacing:.05em;color:var(--red);
+}
+.tl-date i{width:12px;height:1px;background:var(--gold);display:inline-block;}
+.tl-date small{font-family:var(--sans);font-size:11.5px;color:var(--ink-3);letter-spacing:.08em;}
+.tl-card h3{
+  margin:0 0 8px;font-family:var(--serif);font-size:19px;letter-spacing:.06em;color:#3d1210;
+}
+.tl-desc{
+  margin:0 0 14px;font-size:12.8px;line-height:1.8;color:var(--ink-2);
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  min-height:4.9em;
+}
+.tl-more{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;letter-spacing:.1em;color:var(--red);
+}
+.tl-more b{transition:transform .3s;}
+.tl-card:hover .tl-more b{transform:translateX(5px);}
+
+.scroll-btn{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:6;
+  width:42px;height:42px;border-radius:50%;
+  border:1px solid var(--line);background:rgba(255,255,255,.96);
+  color:var(--red);font-size:22px;line-height:1;
+  display:grid;place-items:center;cursor:pointer;
+  box-shadow:var(--shadow-sm);
+  transition:background .25s,color .25s,border-color .25s,opacity .25s;
+}
+.scroll-btn:hover{background:var(--red);color:#fff;border-color:var(--red);}
+.scroll-btn.prev{left:-10px;}
+.scroll-btn.next{right:-10px;}
+.scroll-btn[disabled]{opacity:0;pointer-events:none;}
+.timeline-hint{
+  margin:0;font-size:12px;color:var(--ink-3);letter-spacing:.08em;
+  display:flex;align-items:center;gap:8px;
+}
+.timeline-hint::before{content:"";width:20px;height:1px;background:var(--gold-light);}
+
+/* 图片占位样式（未放图片时自动出现） */
+.photo-media{position:relative;background:#f3ece1;overflow:hidden;}
+.photo-media img{display:block;width:100%;height:100%;object-fit:cover;}
+.photo-fallback{
+  position:absolute;inset:0;display:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  padding:14px;text-align:center;
+  background:
+    repeating-linear-gradient(135deg,rgba(255,255,255,.55) 0 14px,rgba(240,232,219,.55) 14px 28px),
+    #f4ede2;
+  color:#a1907c;
+}
+.photo-fallback .pf-mark{
+  font-family:var(--serif);font-size:15px;letter-spacing:.2em;color:#8c7c68;
+}
+.photo-fallback code{
+  font-family:var(--mono);font-size:10px;letter-spacing:0;
+  background:rgba(255,255,255,.72);padding:2px 8px;border-radius:99px;
+  color:#a99a87;
+}
+.photo-media.is-missing img{display:none;}
+.photo-media.is-missing .photo-fallback{display:flex;}
+
+/* ============================================================
+   5. 章节 / 剧情页
+   ============================================================ */
+.chapter{max-width:1180px;margin:0 auto;padding:46px 24px 40px;}
+.chapter-head{max-width:860px;margin-bottom:34px;}
+.chapter-kicker{
+  display:flex;align-items:center;gap:12px;margin:0 0 12px;
+  font-size:12.5px;letter-spacing:.2em;color:var(--red);font-weight:700;
+}
+.chapter-kicker::before{content:"";width:26px;height:1px;background:var(--gold);}
+.chapter-title{
+  margin:0;font-family:var(--serif);font-weight:700;
+  font-size:clamp(30px,4vw,44px);letter-spacing:.08em;color:#4a0e0e;line-height:1.2;
+}
+.chapter-sub{margin:10px 0 0;font-size:13px;color:var(--ink-2);letter-spacing:.04em;}
+.chapter-sub b{color:var(--red);font-weight:700;}
+.chapter-steps{display:flex;gap:7px;margin-top:18px;}
+.chapter-steps span{
+  width:22px;height:3px;border-radius:2px;background:var(--line);transition:.35s;
+}
+.chapter-steps span.is-past{background:var(--gold-light);}
+.chapter-steps span.is-now{background:var(--red);width:38px;}
+
+.chapter-grid{
+  display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);
+  gap:48px;align-items:start;
+}
+.photo-card{margin:0;position:sticky;top:96px;}
+.photo-frame{
+  position:relative;padding:10px;background:#fff;
+  border:1px solid var(--line);border-radius:3px;
+  box-shadow:var(--shadow-md);
+}
+.photo-frame::before{
+  content:"";position:absolute;inset:4px;border:1px solid rgba(200,160,72,.35);
+  pointer-events:none;
+}
+.photo-frame .photo-media{aspect-ratio:4/3;}
+.photo-card figcaption{
+  margin-top:12px;display:flex;justify-content:space-between;gap:12px;
+  font-size:12px;color:var(--ink-3);letter-spacing:.06em;
+}
+.photo-card figcaption span{font-family:var(--mono);font-size:10px;color:#b6a794;letter-spacing:0;}
+
+.chapter-body{min-width:0;}
+.story{
+  margin:0 0 30px;font-size:15.5px;line-height:2.05;
+  color:var(--ink);text-indent:2em;text-align:justify;
+}
+.story .lead-in{color:var(--red);font-weight:700;}
+
+.choice-title{
+  display:flex;align-items:center;gap:10px;margin:0 0 6px;
+  font-family:var(--serif);font-size:18px;letter-spacing:.1em;color:#4a0e0e;
+}
+.choice-title::before{content:"";width:4px;height:16px;background:var(--gold);}
+.choice-hint{margin:0 0 18px;font-size:12.5px;color:var(--ink-3);letter-spacing:.03em;}
+
+.choices{display:flex;flex-direction:column;gap:12px;}
+.choice{
+  position:relative;display:flex;align-items:flex-start;gap:14px;
+  width:100%;padding:16px 18px;text-align:left;
+  background:#fff;border:1px solid var(--line);border-radius:10px;
+  cursor:pointer;color:inherit;font:inherit;
+  transition:border-color .28s,background .28s,transform .28s,box-shadow .28s;
+}
+.choice:hover:not(:disabled){
+  border-color:var(--gold);background:#fffcf6;
+  transform:translateX(4px);box-shadow:var(--shadow-sm);
+}
+.choice-key{
+  flex:0 0 auto;width:30px;height:30px;border-radius:50%;
+  border:1px solid var(--gold);color:var(--red);
+  display:grid;place-items:center;
+  font-family:var(--serif);font-size:13.5px;font-weight:700;
+  transition:background .25s,color .25s,border-color .25s;
+}
+.choice:hover:not(:disabled) .choice-key{background:var(--red);border-color:var(--red);color:#fff;}
+.choice-text{font-size:14.5px;line-height:1.75;padding-top:3px;}
+.choice-flag{
+  position:absolute;top:12px;right:14px;
+  font-size:10.5px;letter-spacing:.08em;color:var(--ink-3);
+  background:rgba(0,0,0,.045);padding:2px 8px;border-radius:99px;
+}
+.choice.is-wrong{
+  opacity:.62;border-style:dashed;background:#faf6f1;
+  cursor:default;transform:none;box-shadow:none;
+}
+.choice.is-wrong .choice-key{border-color:#c2b4a4;color:#93836f;}
+.choice.is-wrong .choice-flag{background:rgba(153,16,16,.10);color:var(--red);}
+.choice.is-correct{border-color:var(--red);background:#fffaf8;}
+.choice.is-correct .choice-key{background:var(--red);border-color:var(--red);color:#fff;}
+.choice.is-correct .choice-flag{background:rgba(200,160,72,.20);color:#7a5a12;font-weight:700;}
+
+.after-choice{
+  margin-top:22px;padding:20px 22px;
+  border-left:3px solid var(--gold);border-radius:0 10px 10px 0;
+  background:linear-gradient(90deg,#fdf8ee,#fdfbf6);
+  animation:fadeUp .5s ease both;
+}
+.after-choice[hidden]{display:none;}
+.after-kicker{
+  margin:0 0 8px;font-family:var(--serif);font-size:13px;
+  letter-spacing:.2em;color:var(--red);
+}
+.after-choice p.body{margin:0;font-size:14.5px;line-height:1.95;color:var(--ink);}
+.after-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+.chapter-foot{margin-top:30px;}
+
+.finale{
+  margin-top:6px;padding:26px 24px;
+  border:1px solid rgba(200,160,72,.45);border-radius:10px;
+  background:linear-gradient(135deg,#fffdf8,#fdf7ea);
+  text-align:center;
+}
+.finale .quote{
+  margin:0 0 6px;font-family:var(--serif);font-size:19px;letter-spacing:.08em;color:#5c1613;
+}
+.finale .quote-sub{margin:0 0 18px;font-size:12px;color:var(--ink-3);letter-spacing:.1em;}
+.stamina-alert{
+  display:none;margin:0 0 20px;padding:10px 14px;
+  border:1px dashed rgba(153,16,16,.35);border-radius:8px;
+  background:rgba(153,16,16,.04);font-size:12.5px;color:var(--red-soft);
+}
+.stamina-alert.is-on{display:block;}
+
+/* ============================================================
+   6. 会师总结页
+   ============================================================ */
+.summary{max-width:980px;margin:0 auto;padding:60px 24px 30px;}
+.summary-year{
+  margin:0;font-size:12px;letter-spacing:.36em;color:var(--gold);font-weight:700;
+}
+.summary-title{
+  margin:12px 0 8px;font-family:var(--serif);font-weight:700;
+  font-size:clamp(32px,4.4vw,50px);letter-spacing:.14em;color:#4a0e0e;
+}
+.summary-lead{margin:0;font-size:14px;color:var(--ink-2);letter-spacing:.04em;}
+.summary-quote{
+  margin:34px 0 0;padding:22px 0;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  font-family:var(--serif);font-size:clamp(19px,2.4vw,25px);
+  letter-spacing:.08em;color:#5c1613;line-height:1.7;
+}
+.summary-text{
+  margin:26px 0 0;font-size:15.5px;line-height:2.1;color:var(--ink);
+  text-indent:2em;text-align:justify;
+}
+.summary-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  margin:34px 0 0;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;
+}
+.summary-stats div{background:#fff;padding:18px 12px;text-align:center;}
+.summary-stats b{
+  display:block;font-family:var(--serif);font-size:26px;color:var(--red);letter-spacing:.04em;
+}
+.summary-stats span{font-size:11.5px;color:var(--ink-3);letter-spacing:.14em;}
+.summary-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:30px;
+}
+.spirit-card{
+  padding:26px 26px 22px;background:#fff;
+  border:1px solid var(--line);border-top:3px solid var(--red);
+  border-radius:4px;box-shadow:var(--shadow-sm);
+}
+.spirit-card h3{
+  display:flex;align-items:baseline;gap:10px;margin:0 0 14px;
+  font-family:var(--serif);font-size:18px;letter-spacing:.08em;color:#4a0e0e;
+}
+.spirit-card h3 span{
+  font-size:11px;letter-spacing:.1em;color:var(--gold);font-family:var(--sans);
+}
+.spirit-card ul{margin:0;padding:0;list-style:none;}
+.spirit-card li{
+  position:relative;padding-left:18px;margin-bottom:10px;
+  font-size:13.5px;line-height:1.85;color:var(--ink-2);
+}
+.spirit-card li::before{
+  content:"";position:absolute;left:0;top:.72em;
+  width:6px;height:6px;background:var(--gold);transform:rotate(45deg);
+}
+.spirit-card li b{color:var(--red-soft);font-weight:600;}
+.summary-close{
+  margin:34px 0 0;padding:20px 24px;
+  background:var(--gold-pale);border-left:3px solid var(--gold);
+  font-family:var(--serif);font-size:15px;line-height:1.9;color:#5c4a2a;
+  letter-spacing:.03em;
+}
+.summary-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px;}
+
+/* ============================================================
+   7. 史实科普弹窗
+   ============================================================ */
+.modal{
+  position:fixed;inset:0;z-index:100;
+  display:grid;place-items:center;padding:24px;
+  visibility:hidden;pointer-events:none;
+}
+.modal.is-open{visibility:visible;pointer-events:auto;}
+body.modal-open{overflow:hidden;}
+.modal-backdrop{
+  position:absolute;inset:0;background:rgba(38,8,6,.56);
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+  opacity:0;transition:opacity .32s ease;
+}
+.modal.is-open .modal-backdrop{opacity:1;}
+.modal-card{
+  position:relative;width:min(560px,100%);max-height:86vh;overflow:auto;
+  padding:34px 34px 28px;background:#fffdf9;
+  border:1px solid rgba(200,160,72,.55);border-top:3px solid var(--red);
+  border-radius:10px;
+  box-shadow:0 30px 70px rgba(40,5,5,.38);
+  opacity:0;transform:translateY(18px) scale(.97);
+  transition:opacity .32s ease,transform .4s cubic-bezier(.2,.9,.25,1);
+}
+.modal-card:focus{outline:none;}
+.modal.is-open .modal-card{opacity:1;transform:none;}
+.modal-kicker{
+  display:inline-flex;align-items:center;gap:8px;margin:0 0 12px;
+  font-size:11px;font-weight:700;letter-spacing:.26em;color:var(--red);
+}
+.modal-kicker::before{content:"";width:20px;height:1px;background:var(--gold);}
+.modal-card h2{
+  margin:0 0 14px;font-family:var(--serif);font-size:23px;
+  letter-spacing:.06em;color:#4a0e0e;line-height:1.45;
+}
+.modal-text{
+  margin:0;font-size:14.5px;line-height:1.95;color:var(--ink-2);text-align:justify;
+}
+.modal-cost{
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px;
+  margin:20px 0 0;padding-top:16px;border-top:1px dashed var(--line);
+  font-size:13px;color:var(--ink-3);
+}
+.modal-cost b{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 12px;border-radius:99px;
+  background:rgba(153,16,16,.08);color:var(--red);
+  font-family:var(--serif);font-size:14px;letter-spacing:.04em;
+}
+.modal-cost em{font-style:normal;color:var(--ink-3);font-size:12px;line-height:1.7;}
+.modal-actions{margin-top:22px;}
+.modal-actions .btn{width:100%;}
+
+/* ============================================================
+   8. 页脚
+   ============================================================ */
+.site-footer{
+  max-width:var(--page);margin:40px auto 0;padding:26px 24px 36px;
+  border-top:1px solid var(--line);text-align:center;
+}
+.site-footer p{margin:0 0 6px;font-size:12px;color:var(--ink-2);letter-spacing:.16em;}
+.site-footer .foot-note{font-size:11px;color:var(--ink-3);letter-spacing:.06em;}
+
+/* ============================================================
+   9. 响应式
+   ============================================================ */
+@media (max-width:1180px){
+  .hero-aside{display:none;}
+}
+@media (max-width:1024px){
+  .chapter-grid{gap:32px;}
+  .photo-card{top:84px;}
+}
+@media (max-width:880px){
+  .hero{padding-top:44px;}
+  .hero::before{height:58px;top:40px;}
+  .chapter-grid{grid-template-columns:1fr;gap:28px;}
+  .photo-card{position:static;max-width:560px;}
+  .summary-grid{grid-template-columns:1fr;}
+  .summary-stats b{font-size:22px;}
+}
+@media (max-width:720px){
+  .header-inner{padding:11px 16px;gap:10px;}
+  .brand-text strong{font-size:17px;}
+  .brand-text span{display:none;}
+  .stamina-track{width:74px;}
+  .nav-btn{padding:7px 12px;font-size:12px;}
+  .site-nav{gap:8px;width:100%;justify-content:space-between;}
+  .hero,.timeline-section,.chapter,.summary,.site-footer{padding-left:16px;padding-right:16px;}
+  .hero-copy{padding-left:18px;}
+  .hero::before{left:16px;}
+  .hero-lead{font-size:14px;}
+  .hero-meta{gap:12px 22px;}
+  .tl-item{width:250px;}
+  .tl-list{gap:16px;}
+  .scroll-btn{display:none;}
+  .timeline-viewport{padding-bottom:14px;}
+  .chapter{padding-top:34px;}
+  .story{font-size:14.5px;line-height:1.95;}
+  .choice{padding:14px 14px;gap:12px;}
+  .choice-text{font-size:14px;}
+  .modal{padding:16px;}
+  .modal-card{padding:26px 22px 22px;}
+  .modal-card h2{font-size:20px;}
+  .summary{padding-top:40px;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+    scroll-behavior:auto !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     顶部导航：品牌 + 时间轴按钮 + 体力值 + 重新出发
+     ============================================================ -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">★</span>
+      <div class="brand-text">
+        <strong>长征·青春行</strong>
+        <span>重走二万五千里</span>
+      </div>
+    </div>
+
+    <nav class="site-nav" aria-label="页面导航">
+      <button class="nav-btn is-active" type="button" id="navHome">时间轴</button>
+
+      <!-- 体力值：随答题变化，初始 100 -->
+      <div class="stamina" id="staminaWrap" role="status" aria-label="剩余体力">
+        <span>体力</span>
+        <span class="stamina-track" aria-hidden="true">
+          <i class="stamina-fill" id="staminaFill"></i>
+        </span>
+        <b class="stamina-num" id="staminaNum">100</b>
+      </div>
+
+      <button class="nav-btn ghost-nav" type="button" id="navReset">重新出发</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- ============================================================
+       视图一：首页 + 横向时间轴
+       ============================================================ -->
+  <section class="view is-active" id="viewHome" aria-label="长征时间轴首页">
+
+    <!-- 首页标题区（文案可改） -->
+    <div class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">互动思政 · 长征精神学习</p>
+        <h1>重走长征路<span>一九三四 — 一九三六</span></h1>
+        <p class="hero-lead">
+          1934年10月到1936年10月，红军用两年时间、二万五千里行程，写下了中国革命史上最壮烈的一页。
+          这一次，你是17岁的普通红军战士，体力值100。七个历史节点，每一次抉择都关乎队伍的生死。
+        </p>
+        <div class="hero-actions">
+          <button class="btn primary" type="button" data-open="1">从瑞金出发 →</button>
+          <a class="btn ghost" href="#timelineTitle">浏览七个节点</a>
+        </div>
+        <div class="hero-meta">
+          <div><b>17 岁</b>玩家身份 · 普通红军战士</div>
+          <div><b>100</b>初始体力值</div>
+          <div><b>7 个</b>历史节点 · 史实科普</div>
+        </div>
+      </div>
+
+      <!-- 右侧竖排诗句装饰（纯视觉元素，可删除） -->
+      <div class="hero-aside" aria-hidden="true">
+        <span class="ha-line"></span>
+        <p class="ha-poem">红军不怕远征难<br>万水千山只等闲</p>
+      </div>
+    </div>
+
+    <!-- 横向时间轴 -->
+    <div class="timeline-section">
+      <div class="section-head">
+        <h2 id="timelineTitle">长征时间轴</h2>
+        <p class="progress-note">已走过 <b id="progressCount">0</b> / 7 段征程</p>
+      </div>
+
+      <div class="timeline-shell">
+        <button class="scroll-btn prev" type="button" id="scrollPrev" aria-label="向左滚动时间轴">‹</button>
+
+        <div class="timeline-viewport" id="timelineViewport" tabindex="0"
+             role="region" aria-label="长征时间轴，可左右滚动">
+          <ol class="tl-list" id="timelineList">
+            <!-- 七个节点由 JS 根据 CHAPTERS 数据生成 -->
+          </ol>
+        </div>
+
+        <button class="scroll-btn next" type="button" id="scrollNext" aria-label="向右滚动时间轴">›</button>
+      </div>
+
+      <p class="timeline-hint">拖动或滚动查看全部七个节点，点击卡片进入对应章节</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       视图二：章节剧情页（内容由 JS 渲染）
+       ============================================================ -->
+  <section class="view" id="viewChapter" aria-label="章节剧情">
+    <div class="chapter" id="chapterStage"><!-- 动态内容 --></div>
+  </section>
+
+  <!-- ============================================================
+       视图三：会师总结页
+       ============================================================ -->
+  <section class="view" id="viewSummary" aria-label="会师总结">
+    <div class="summary">
+      <p class="summary-year">1936.10 · 甘肃会宁</p>
+      <h2 class="summary-title">胜利会师</h2>
+      <p class="summary-lead">红一、二、四方面军在会宁、将台堡胜利会师，长征宣告胜利结束。</p>
+
+      <p class="summary-quote">“二万五千里长征，是中国革命的伟大壮举。”</p>
+
+      <!-- 总结正文（文案可改） -->
+      <p class="summary-text">
+        无数红军战士用鲜血与生命铸就伟大长征精神。作为新时代青年，我们应当铭记历史，
+        传承不怕艰难困苦、不怕牺牲的长征精神，立足当下，奋勇前行。
+      </p>
+
+      <div class="summary-stats">
+        <div><b id="sumChapters">7</b><span>走过章节 / 7</span></div>
+        <div><b id="sumStamina">100</b><span>剩余体力</span></div>
+        <div><b>25,000</b><span>里 · 长征总行程</span></div>
+      </div>
+
+      <div class="summary-grid">
+        <article class="spirit-card">
+          <h3><span>01</span>什么是长征精神</h3>
+          <ul>
+            <li><b>坚定理想：</b>把全国人民和中华民族的根本利益看得高于一切，坚信正义事业必然胜利。</li>
+            <li><b>不怕牺牲：</b>为了救国救民，不怕任何艰难险阻，不惜付出一切牺牲。</li>
+            <li><b>实事求是：</b>坚持独立自主、一切从实际出发，而不是照搬本本。</li>
+            <li><b>顾全大局：</b>严守纪律、紧密团结，个人服从整体，局部服从全局。</li>
+            <li><b>依靠人民：</b>同人民群众生死相依、患难与共、艰苦奋斗。</li>
+          </ul>
+        </article>
+
+        <article class="spirit-card">
+          <h3><span>02</span>当代青年的启示</h3>
+          <ul>
+            <li><b>认清方向：</b>把个人选择汇入国家和时代的方向，路才走得远。</li>
+            <li><b>先调查再判断：</b>遇到问题不迷信现成答案，像遵义会议一样敢于纠正错误。</li>
+            <li><b>肯走难走的路：</b>把“难”当作成长的必经路段，而不是放弃的理由。</li>
+            <li><b>和同伴一起走：</b>一个人可以走得快，一群人才能翻过雪山、走出草地。</li>
+            <li><b>记住来路：</b>敬畏历史，才能看清去处。</li>
+          </ul>
+        </article>
+      </div>
+
+      <p class="summary-close">
+        每一代人有每一代人的长征路。今天，我们的“雪山”“草地”，也许是学业、是工作、
+        是那些看起来过不去的难关——但只要方向正确、脚步不停，就一定能走到会师的那一天。
+      </p>
+
+      <div class="summary-actions">
+        <button class="btn primary" type="button" data-home>返回首页时间轴</button>
+        <button class="btn ghost" type="button" data-restart>再走一次</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>长征·青春行 · 思政学习互动页面</p>
+  <p class="foot-note">本页面仅用于学习实践 · 历史图片请放入 images/ 目录并替换为无版权素材</p>
+</footer>
+
+<!-- ============================================================
+     史实科普弹窗（选择错误选项时出现）
+     ============================================================ -->
+<div class="modal" id="factModal" role="dialog" aria-modal="true"
+     aria-labelledby="modalTitle" aria-describedby="modalText" aria-hidden="true">
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card" tabindex="-1">
+    <p class="modal-kicker">史实科普 · HISTORICAL FACT</p>
+    <h2 id="modalTitle">标题</h2>
+    <p class="modal-text" id="modalText">内容</p>
+    <p class="modal-cost">
+      <b id="modalCost">体力 -10</b>
+      <em id="modalNote">这次选择与历史实际不符，队伍付出了代价。</em>
+    </p>
+    <div class="modal-actions">
+      <button class="btn primary" type="button" id="modalOk" data-close>我明白了，继续前行</button>
+    </div>
+  </div>
+</div>
+
+<!-- 屏幕阅读器播报区 -->
+<p class="sr-only" id="liveRegion" aria-live="polite"></p>
+
+<script>
+/* ============================================================
+   JS 内容数据区（★ 修改文案主要改这里 ★）
+   ------------------------------------------------------------
+   每个章节包含：
+     id         章节序号（1-7，与时间轴顺序一致）
+     date/place 时间、地点（显示在卡片与章节页标题）
+     title      章节名
+     image      图片占位路径（把同名图片放进 images/ 即可）
+     caption    图片下方说明
+     intro      时间轴卡片上的简介
+     story      章节剧情正文
+     choices    选项数组：correct 为 true 的是历史真实选择；
+                错误选项带 cost（扣体力）与 title / fact（科普弹窗内容）
+   第 7 章无选择题，由 finale 区块直接进入总结页。
+   ============================================================ */
+const CHAPTERS = [
+  {
+    id: 1,
+    date: '1934.10',
+    place: '江西瑞金',
+    title: '长征出发',
+    image: 'images/ruijin.jpg',
+    imageAlt: '中央红军长征出发地瑞金的历史照片',
+    caption: '瑞金 · 中央红军长征出发地',
+    intro: '第五次反“围剿”失利，中央红军告别瑞金，踏上向西突围的漫漫征途。',
+    story: '第五次反“围剿”失败，根据地已经难以坚守。中央接到命令，红军主力准备突围转移。' +
+           '部队物资紧缺，伤员众多。你作为年轻战士，看到队伍正在准备转移，现在面临安排。',
+    choices: [
+      {
+        key: 'A',
+        label: '跟随大部队主力向西突围',
+        correct: true,
+        result: '你背起简单的行装，跟上了队伍。1934年10月，中央红军主力八万六千余人从瑞金、于都等地出发，' +
+                '开始战略转移。没有人知道，这一走就是二万五千里。'
+      },
+      {
+        key: 'B',
+        label: '留在根据地打游击',
+        cost: 10,
+        title: '主力为什么必须转移？',
+        fact: '留下部分人员开展游击斗争是真实部署，但主力红军如果留下大量战斗人员，会遭到国民党重兵围剿，' +
+              '有全军覆没的风险。党中央决定主力进行战略转移，保存红军有生力量，游击队伍只留下少量人员。'
+      },
+      {
+        key: 'C',
+        label: '就地与敌人硬拼死守苏区',
+        cost: 10,
+        title: '为什么要避免阵地硬拼？',
+        fact: '此时国民党军队兵力、装备占绝对优势，死守硬拼会造成红军主力毁灭性损失。' +
+              '第五次反“围剿”前期正是坚持阵地硬拼，带来巨大伤亡，所以中央才做出战略突围的决定。'
+      }
+    ]
+  },
+
+  {
+    id: 2,
+    date: '1934.12',
+    place: '广西湘江',
+    title: '湘江战役',
+    image: 'images/xiangjiang.jpg',
+    imageAlt: '湘江战役遗址历史照片',
+    caption: '湘江 · 红军长征最惨烈的一战',
+    intro: '血战湘江，红军以巨大牺牲掩护中央纵队渡过天险，突破第四道封锁线。',
+    story: '红军突破三道封锁线之后来到湘江。国民党重兵四面合围，前后追兵紧逼。' +
+           '红军要抢渡湘江，掩护中央纵队过江。部队伤亡急剧增大。',
+    choices: [
+      {
+        key: 'A',
+        label: '拼死阻击敌军，掩护中央纵队渡江',
+        correct: true,
+        result: '你随部队冲上阵地，用血肉之躯顶住敌人的进攻。中央纵队得以渡过湘江。' +
+                '红军虽然突破了第四道封锁线，却由出发时的八万六千余人锐减至三万余人。'
+      },
+      {
+        key: 'B',
+        label: '放弃掩护，部队快速先行渡江逃命',
+        cost: 15,
+        title: '中央纵队为什么必须被掩护？',
+        fact: '中央纵队携带大量机关、辎重，行动缓慢。如果前线部队放弃掩护，中央机关会直接遭到敌军围剿，' +
+              '整个红军指挥体系将覆灭。湘江战役中，红军以巨大牺牲，换取了中央主力渡过湘江。'
+      },
+      {
+        key: 'C',
+        label: '原地停下休整等待敌军',
+        cost: 15,
+        title: '湘江边为什么不能停留？',
+        fact: '敌人追兵正在快速逼近，原地停留会陷入敌人合围圈，将陷入包围。此时必须抢时间强渡湘江。'
+      }
+    ]
+  },
+
+  {
+    id: 3,
+    date: '1935.01',
+    place: '贵州遵义',
+    title: '遵义会议',
+    image: 'images/zunyi.jpg',
+    imageAlt: '遵义会议会址历史照片',
+    caption: '遵义 · 中国革命的历史转折点',
+    intro: '遵义会议召开，纠正“左”倾军事错误，重新确立正确的军事路线。',
+    story: '湘江战役损失惨重，红军由出发八万多人锐减三万余人。部队进入遵义，' +
+           '内部开始反思之前军事指挥的错误。',
+    choices: [
+      {
+        key: 'A',
+        label: '支持纠正错误军事指挥，调整领导',
+        correct: true,
+        result: '会议增选毛泽东为政治局常委，取消博古、李德的最高军事指挥权，重新确立正确的军事路线。' +
+                '红军重新获得了方向。'
+      },
+      {
+        key: 'B',
+        label: '继续沿用之前的作战方案硬打硬拼',
+        cost: 10,
+        title: '遵义会议纠正了什么？',
+        fact: '之前博古、李德的错误军事指挥，坚持阵地战硬拼，是湘江巨大损失的重要原因。' +
+              '遵义会议的核心就是纠正“左”倾军事错误，重新确立正确军事路线。'
+      },
+      {
+        key: 'C',
+        label: '放弃战斗，直接向西漫无目的撤退',
+        cost: 10,
+        title: '为什么不能盲目西撤？',
+        fact: '单纯盲目撤退无法摆脱敌人围追堵截，必须要有明确军事战略，寻找新的落脚点，不能一味逃跑。'
+      }
+    ]
+  },
+
+  {
+    id: 4,
+    date: '1935.05',
+    place: '四川泸定',
+    title: '飞夺泸定桥',
+    image: 'images/ludingqiao.jpg',
+    imageAlt: '泸定桥历史老照片',
+    caption: '泸定桥 · 大渡河上的生死通道',
+    intro: '一昼夜奔袭240里，22名勇士攀着铁索冒弹雨夺下泸定桥。',
+    story: '大渡河天险横在面前，蒋介石企图把红军围歼于大渡河畔。红军需要火速奔袭夺取泸定桥。',
+    choices: [
+      {
+        key: 'A',
+        label: '连夜急行军，奔袭抢占泸定桥',
+        correct: true,
+        result: '二十二名突击队员冒着枪林弹雨，攀着铁索冲过泸定桥。红军主力得以通过大渡河，' +
+                '摆脱了被围歼于大渡河畔的危局。'
+      },
+      {
+        key: 'B',
+        label: '原地休整，等天气好转再行动',
+        cost: 15,
+        title: '泸定桥为什么必须抢时间？',
+        fact: '敌军援军正在赶来，时间非常紧迫。红军战士冒雨一昼夜奔袭240里，抢在敌人增援之前抵达泸定桥。' +
+              '一旦拖延，渡口就会被敌军彻底封锁。'
+      },
+      {
+        key: 'C',
+        label: '绕道避开大渡河，放弃夺取泸定桥',
+        cost: 15,
+        title: '为什么要夺取泸定桥？',
+        fact: '周边地形险峻，没有其他可行的大规模行军通路，绕路会被敌人追上包围。' +
+              '夺取泸定桥是当时唯一可行的通路。'
+      }
+    ]
+  },
+
+  {
+    id: 5,
+    date: '1935.06',
+    place: '四川夹金山',
+    title: '翻越夹金山',
+    image: 'images/jiajinsan.jpg',
+    imageAlt: '红军翻越夹金山雪山的历史图片',
+    caption: '夹金山 · 长征翻越的第一座大雪山',
+    intro: '空气稀薄、缺衣少粮，红军战士相互搀扶，一步一步翻过雪山。',
+    story: '来到夹金山，高山严寒，空气稀薄，战士缺少棉衣、粮食。',
+    choices: [
+      {
+        key: 'A',
+        label: '相互搀扶，缓慢翻越雪山',
+        correct: true,
+        result: '你们互相搀扶，一步一步向上挪。有人倒下，就有人把他扶起来。' +
+                '翻过夹金山，队伍继续向北。'
+      },
+      {
+        key: 'B',
+        label: '快速奔跑冲上山顶',
+        cost: 10,
+        title: '翻雪山为什么不能奔跑？',
+        fact: '高山缺氧，剧烈奔跑极易引发高原反应，很多战士因此倒下。' +
+              '红军翻越雪山需要缓步前进，互相帮扶。'
+      },
+      {
+        key: 'C',
+        label: '就地驻扎，等待夏天回暖再翻越',
+        cost: 10,
+        title: '为什么不能等天气回暖？',
+        fact: '敌人追兵在后，不能长期停留。等待季节等于坐等敌人合围，只能克服恶劣环境翻越雪山。'
+      }
+    ]
+  },
+
+  {
+    id: 6,
+    date: '1935.08',
+    place: '四川松潘',
+    title: '过松潘草地',
+    image: 'images/caodi.jpg',
+    imageAlt: '红军过松潘草地历史图片',
+    caption: '松潘草地 · 茫茫水草地与死亡沼泽',
+    intro: '沼泽遍布、粮食断绝，红军以野菜皮带充饥，艰难走出草地。',
+    story: '茫茫水草地，沼泽遍布，粮食极度匮乏，很多战士陷入泥潭。',
+    choices: [
+      {
+        key: 'A',
+        label: '节约粮食，互相扶持，认准方向艰难前行',
+        correct: true,
+        result: '你们把野菜、皮带分着吃，互相搀扶走出沼泽。1935年8月，红军走出松潘草地。'
+      },
+      {
+        key: 'B',
+        label: '把剩余粮食一次性吃光',
+        cost: 15,
+        title: '草地行军为什么必须节约粮食？',
+        fact: '草地行军没有补给来源，粮食一旦耗尽，后续就会大量战士饿死。' +
+              '红军当时严格节约粮食，分吃草根树皮。'
+      },
+      {
+        key: 'C',
+        label: '分散队伍各自寻找出路',
+        cost: 15,
+        title: '为什么不能分散行动？',
+        fact: '草地环境险恶，分散队伍容易迷失、陷入沼泽，被敌人各个击破。必须保持队伍统一行动。'
+      }
+    ]
+  },
+
+  {
+    id: 7,
+    date: '1936.10',
+    place: '甘肃会宁',
+    title: '会宁会师',
+    image: 'images/huishi.jpg',
+    imageAlt: '红军三大主力会宁会师历史图片',
+    caption: '会宁 · 红军三大主力会师地',
+    intro: '红一、二、四方面军在甘肃会宁胜利会师，长征宣告胜利结束。',
+    story: '1936年10月，红一、二、四方面军在甘肃会宁、将台堡胜利会师。' +
+           '历经千难万险，红军用两年时间走完了二万五千里，长征宣告胜利结束。',
+    choices: [],
+    finale: {
+      quote: '“红军不怕远征难，万水千山只等闲。”',
+      sub: '走过雪山草地，走过生死抉择，你终于走到了会师这一天。'
+    }
+  }
+];
+
+/* 通关后进入的总结页文案在 HTML 的 #viewSummary 中，可自行修改 */
+
+/* ============================================================
+   状态管理（体力、已通关章节、已看过的史实）
+   ============================================================ */
+const STORAGE_KEY = 'changzheng-walk-v1';
+
+const state = {
+  stamina: 100,
+  cleared: [],   // 已通关章节 id
+  learned: [],   // 已触发的错误选项（避免重复扣体力）
+  currentId: null
+};
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const data = JSON.parse(raw);
+    if(typeof data.stamina === 'number'){
+      state.stamina = Math.max(0, Math.min(100, data.stamina));
+    }
+    if(Array.isArray(data.cleared)) state.cleared = data.cleared.filter(n => n >= 1 && n <= 7);
+    if(Array.isArray(data.learned)) state.learned = data.learned.filter(s => typeof s === 'string');
+  }catch(e){
+    /* 本地存储不可用时静默降级为内存状态 */
+  }
+}
+
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      stamina: state.stamina,
+      cleared: state.cleared,
+      learned: state.learned
+    }));
+  }catch(e){ /* 忽略隐私模式下的写入失败 */ }
+}
+
+/* ============================================================
+   小工具
+   ============================================================ */
+const $  = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+function escapeHTML(str){
+  return String(str).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+/* 图片占位模板：图片加载失败时显示“图片占位”，不影响页面运行 */
+function photoMarkup(ch){
+  return `
+    <div class="photo-media">
+      <img src="${escapeHTML(ch.image)}" alt="${escapeHTML(ch.imageAlt)}" loading="lazy"
+           onerror="this.closest('.photo-media').classList.add('is-missing')">
+      <div class="photo-fallback">
+        <span class="pf-mark">图片占位</span>
+        <span>请替换为无版权历史图片</span>
+        <code>${escapeHTML(ch.image)}</code>
+      </div>
+    </div>`;
+}
+
+function announce(text){
+  const live = $('#liveRegion');
+  if(live) live.textContent = text;
+}
+
+/* ============================================================
+   渲染：顶部体力条
+   ============================================================ */
+function renderStamina(){
+  const wrap = $('#staminaWrap');
+  const fill = $('#staminaFill');
+  const num  = $('#staminaNum');
+  if(!wrap) return;
+
+  fill.style.width = state.stamina + '%';
+  num.textContent = state.stamina;
+  wrap.classList.toggle('is-low', state.stamina <= 40 && state.stamina > 0);
+  wrap.classList.toggle('is-zero', state.stamina === 0);
+  wrap.setAttribute('aria-label', '剩余体力 ' + state.stamina);
+
+  const alertBox = $('#staminaAlert');
+  if(alertBox) alertBox.classList.toggle('is-on', state.stamina === 0);
+
+  const chapterNum = $('#chapterStamina');
+  if(chapterNum) chapterNum.textContent = state.stamina;
+}
+
+/* ============================================================
+   渲染：首页时间轴
+   ============================================================ */
+function timelineCard(ch){
+  const done = state.cleared.includes(ch.id);
+  const num  = String(ch.id).padStart(2, '0');
+  return `
+    <li class="tl-item ${done ? 'is-done' : ''}">
+      <span class="tl-dot" aria-hidden="true">${num}</span>
+      <button class="tl-card" type="button" data-open="${ch.id}"
+              aria-label="第${ch.id}章 ${escapeHTML(ch.title)}，${done ? '已完成' : '未走过'}">
+        <div class="tl-thumb">
+          ${photoMarkup(ch)}
+          <span class="tl-status ${done ? 'is-done' : ''}">${done ? '已完成' : '未走过'}</span>
+        </div>
+        <div class="tl-body">
+          <p class="tl-date">${escapeHTML(ch.date)}<i></i><small>${escapeHTML(ch.place)}</small></p>
+          <h3>${escapeHTML(ch.title)}</h3>
+          <p class="tl-desc">${escapeHTML(ch.intro)}</p>
+          <span class="tl-more">进入本章 <b>→</b></span>
+        </div>
+      </button>
+    </li>`;
+}
+
+function renderTimeline(){
+  const list = $('#timelineList');
+  if(!list) return;
+  list.innerHTML = CHAPTERS.map(timelineCard).join('');
+  $('#progressCount').textContent = state.cleared.length;
+}
+
+/* ============================================================
+   渲染：章节页
+   ============================================================ */
+function choiceMarkup(chId, choice){
+  const learnedKey = chId + ':' + choice.key;
+  const learned = state.learned.includes(learnedKey);
+  return `
+    <button class="choice ${learned ? 'is-wrong' : ''}" type="button"
+            data-choice="${choice.key}" ${learned ? 'disabled' : ''}>
+      <span class="choice-key" aria-hidden="true">${choice.key}</span>
+      <span class="choice-text">${escapeHTML(choice.label)}</span>
+      ${learned ? '<span class="choice-flag">已了解</span>' : ''}
+    </button>`;
+}
+
+function chapterMarkup(ch){
+  const steps = CHAPTERS.map(c => {
+    const cls = c.id < ch.id ? 'is-past' : (c.id === ch.id ? 'is-now' : '');
+    return `<span class="${cls}"></span>`;
+  }).join('');
+
+  const choices = ch.choices && ch.choices.length
+    ? `<div class="choices">${ch.choices.map(c => choiceMarkup(ch.id, c)).join('')}</div>`
+    : '';
+
+  const finale = ch.finale
+    ? `<div class="finale">
+         <p class="quote">${escapeHTML(ch.finale.quote)}</p>
+         <p class="quote-sub">${escapeHTML(ch.finale.sub)}</p>
+         <button class="btn primary" type="button" data-summary>查看会师总结 →</button>
+       </div>`
+    : '';
+
+  return `
+    <div class="chapter-head">
+      <p class="chapter-kicker">第 ${ch.id} 章 · ${escapeHTML(ch.date)} · ${escapeHTML(ch.place)}</p>
+      <h2 class="chapter-title">${escapeHTML(ch.title)}</h2>
+      <p class="chapter-sub">玩家身份：17岁普通红军战士 · 体力值 <b id="chapterStamina">${state.stamina}</b></p>
+      <div class="chapter-steps" aria-hidden="true">${steps}</div>
+    </div>
+
+    <div class="chapter-grid">
+      <figure class="photo-card">
+        <div class="photo-frame">${photoMarkup(ch)}</div>
+        <figcaption>
+          ${escapeHTML(ch.caption)}
+          <span>${escapeHTML(ch.image)}</span>
+        </figcaption>
+      </figure>
+
+      <div class="chapter-body">
+        <div class="stamina-alert" id="staminaAlert">
+          体力已耗尽。你仍然可以继续阅读全部史实、完成本章——长征的考验，也从不止于体力。
+        </div>
+
+        <p class="story">${escapeHTML(ch.story)}</p>
+
+        <div class="choice-block">
+          ${ch.choices && ch.choices.length ? `
+            <h3 class="choice-title">你的选择</h3>
+            <p class="choice-hint">选择符合历史实际的做法，队伍才能继续前进；选错会弹出史实科普，但不影响继续游玩。</p>
+            ${choices}` : ''}
+          <div class="after-choice" id="afterChoice" hidden></div>
+        </div>
+
+        ${finale}
+
+        <div class="chapter-foot">
+          <button class="btn ghost" type="button" data-home>← 返回时间轴</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+let currentChapter = null;
+
+function openChapter(id){
+  const ch = CHAPTERS.find(c => c.id === Number(id));
+  if(!ch) return;
+
+  currentChapter = ch;
+  state.currentId = ch.id;
+
+  // 第 7 章没有选择题，进入即视为走完全程
+  if(ch.id === 7 && !state.cleared.includes(7)){
+    state.cleared.push(7);
+    saveState();
+    renderTimeline();
+  }
+
+  $('#chapterStage').innerHTML = chapterMarkup(ch);
+  showView('chapter');
+  renderStamina();
+  announce('进入第' + ch.id + '章，' + ch.title);
+}
+
+function showAfterChoice(result, nextId){
+  const box = $('#afterChoice');
+  if(!box) return;
+
+  const next = nextId ? CHAPTERS.find(c => c.id === nextId) : null;
+  const nextLabel = next ? `继续前进：${escapeHTML(next.title)}` : '查看会师总结';
+
+  box.innerHTML = `
+    <p class="after-kicker">剧情继续 · 体力不变</p>
+    <p class="body">${escapeHTML(result)}</p>
+    <div class="after-actions">
+      ${next
+        ? `<button class="btn primary" type="button" data-next="${next.id}">${nextLabel} →</button>`
+        : `<button class="btn primary" type="button" data-summary>${nextLabel} →</button>`}
+    </div>`;
+  box.hidden = false;
+  box.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+}
+
+/* ============================================================
+   答题逻辑
+   ============================================================ */
+function handleChoice(btn){
+  if(!currentChapter || btn.disabled) return;
+
+  const key = btn.dataset.choice;
+  const choice = currentChapter.choices.find(c => c.key === key);
+  if(!choice) return;
+
+  const ch = currentChapter;
+
+  if(choice.correct){
+    // 正确：正常推进，体力不变
+    if(!state.cleared.includes(ch.id)) state.cleared.push(ch.id);
+    saveState();
+
+    $$('.choice', $('#chapterStage')).forEach(el => {
+      el.disabled = true;
+      if(el.dataset.choice === choice.key){
+        el.classList.add('is-correct');
+        el.style.opacity = '1';
+        const flag = document.createElement('span');
+        flag.className = 'choice-flag';
+        flag.textContent = '符合史实';
+        el.appendChild(flag);
+      }else{
+        el.style.opacity = '.45';
+      }
+    });
+
+    const nextId = ch.id < 7 ? ch.id + 1 : null;
+    showAfterChoice(choice.result, nextId);
+
+    renderTimeline();
+    renderStamina();
+    announce('选择正确，' + (nextId ? '可以继续前往下一章' : '可以查看会师总结'));
+    return;
+  }
+
+  // 错误：扣体力 + 弹出史实科普，不阻断游戏
+  const learnedKey = ch.id + ':' + choice.key;
+  if(!state.learned.includes(learnedKey)){
+    state.learned.push(learnedKey);
+    state.stamina = Math.max(0, state.stamina - choice.cost);
+    saveState();
+  }
+
+  btn.classList.add('is-wrong');
+  btn.disabled = true;
+  if(!$('.choice-flag', btn)){
+    const flag = document.createElement('span');
+    flag.className = 'choice-flag';
+    flag.textContent = '已了解';
+    btn.appendChild(flag);
+  }
+
+  renderStamina();
+  announce('选择错误，体力 -' + choice.cost + '，弹出史实科普');
+
+  openModal({
+    title: choice.title,
+    text: choice.fact,
+    cost: choice.cost,
+    empty: state.stamina === 0
+  });
+}
+
+/* ============================================================
+   弹窗
+   ============================================================ */
+const modal = $('#factModal');
+let lastFocused = null;
+
+function openModal({title, text, cost, empty}){
+  $('#modalTitle').textContent = title;
+  $('#modalText').textContent = text;
+  $('#modalCost').textContent = '体力 -' + cost;
+  $('#modalNote').textContent = empty
+    ? '体力已归零，但你仍可继续阅读全部史实、完成整段征程。'
+    : '这次选择与历史实际不符，队伍因此付出了代价。';
+
+  lastFocused = document.activeElement;
+  modal.classList.add('is-open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+
+  // 让焦点进入弹窗（便于键盘与读屏操作），但不显示按钮焦点框
+  setTimeout(() => $('.modal-card').focus({preventScroll: true}), 60);
+}
+
+function closeModal(){
+  modal.classList.remove('is-open');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('modal-open');
+  if(lastFocused && typeof lastFocused.focus === 'function'){
+    lastFocused.focus({preventScroll: true});
+  }
+}
+
+function trapFocus(e){
+  if(e.key !== 'Tab') return;
+  const focusable = $$('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])', modal)
+    .filter(el => !el.disabled && el.offsetParent !== null);
+  if(!focusable.length) return;
+  const first = focusable[0];
+  const last  = focusable[focusable.length - 1];
+  if(e.shiftKey && document.activeElement === first){
+    e.preventDefault(); last.focus();
+  }else if(!e.shiftKey && document.activeElement === last){
+    e.preventDefault(); first.focus();
+  }
+}
+
+document.addEventListener('keydown', (e) => {
+  if(!modal.classList.contains('is-open')) return;
+  if(e.key === 'Escape'){ closeModal(); return; }
+  trapFocus(e);
+});
+
+/* ============================================================
+   视图切换
+   ============================================================ */
+function showView(name){
+  ['home', 'chapter', 'summary'].forEach(v => {
+    $('#view' + v[0].toUpperCase() + v.slice(1)).classList.toggle('is-active', v === name);
+  });
+  $('#navHome').classList.toggle('is-active', name === 'home');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function goHome(){
+  renderTimeline();
+  showView('home');
+  renderStamina();
+  announce('已返回长征时间轴');
+}
+
+function openSummary(){
+  // 确保七章都已计入进度（第 7 章在进入时已标记）
+  $('#sumChapters').textContent = state.cleared.length;
+  $('#sumStamina').textContent = state.stamina;
+  showView('summary');
+  renderStamina();
+  announce('已进入会师总结页');
+}
+
+/* ============================================================
+   全局点击代理：所有 data-* 按钮
+   ============================================================ */
+let dragSuppress = false;
+
+document.addEventListener('click', (e) => {
+  if(dragSuppress) return;
+  const target = e.target.closest('[data-open],[data-choice],[data-next],[data-summary],[data-home],[data-restart],[data-close]');
+  if(!target) return;
+
+  if(target.matches('[data-close]')){ closeModal(); return; }
+  if(target.matches('[data-open]')){ openChapter(target.dataset.open); return; }
+  if(target.matches('[data-choice]')){ handleChoice(target); return; }
+  if(target.matches('[data-next]')){ openChapter(target.dataset.next); return; }
+  if(target.matches('[data-summary]')){ openSummary(); return; }
+  if(target.matches('[data-home]')){ goHome(); return; }
+  if(target.matches('[data-restart]')){ restartJourney(); return; }
+});
+
+/* ============================================================
+   重新开始
+   ============================================================ */
+function restartJourney(){
+  const ok = window.confirm('重新出发将把体力恢复为 100，并清空已走过的章节记录，确定吗？');
+  if(!ok) return;
+  state.stamina = 100;
+  state.cleared = [];
+  state.learned = [];
+  state.currentId = null;
+  saveState();
+  renderStamina();
+  renderTimeline();
+  showView('home');
+  announce('已重新开始，体力恢复为 100');
+}
+
+/* ============================================================
+   时间轴横向滚动：箭头、拖拽、键盘
+   ============================================================ */
+function initTimeline(){
+  const vp = $('#timelineViewport');
+  if(!vp) return;
+
+  const step = () => {
+    const card = vp.querySelector('.tl-item');
+    return (card ? card.offsetWidth : 270) + 22;
+  };
+
+  const updateArrows = () => {
+    const prev = $('#scrollPrev');
+    const next = $('#scrollNext');
+    const max = vp.scrollWidth - vp.clientWidth - 2;
+    if(prev) prev.disabled = vp.scrollLeft <= 2;
+    if(next) next.disabled = vp.scrollLeft >= max;
+  };
+
+  $('#scrollPrev').addEventListener('click', () => vp.scrollBy({left: -step(), behavior: 'smooth'}));
+  $('#scrollNext').addEventListener('click', () => vp.scrollBy({left: step(), behavior: 'smooth'}));
+  vp.addEventListener('scroll', updateArrows, {passive: true});
+  window.addEventListener('resize', updateArrows);
+
+  // 鼠标拖拽滚动（触屏走浏览器原生滑动）
+  let down = false, moved = 0, startX = 0, startLeft = 0;
+
+  vp.addEventListener('pointerdown', (e) => {
+    if(e.pointerType === 'touch' || e.button !== 0) return;
+    down = true; moved = 0;
+    startX = e.clientX; startLeft = vp.scrollLeft;
+    vp.classList.add('dragging');
+  });
+
+  window.addEventListener('pointermove', (e) => {
+    if(!down) return;
+    const dx = e.clientX - startX;
+    if(Math.abs(dx) > 3){
+      moved = Math.max(moved, Math.abs(dx));
+      vp.scrollLeft = startLeft - dx;
+    }
+  });
+
+  window.addEventListener('pointerup', () => {
+    if(!down) return;
+    down = false;
+    vp.classList.remove('dragging');
+    if(moved > 8){
+      dragSuppress = true;
+      setTimeout(() => { dragSuppress = false; }, 80);
+    }
+  });
+
+  // 键盘左右键滚动
+  vp.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowRight'){ e.preventDefault(); vp.scrollBy({left: step(), behavior: 'smooth'}); }
+    if(e.key === 'ArrowLeft'){  e.preventDefault(); vp.scrollBy({left: -step(), behavior: 'smooth'}); }
+  });
+
+  updateArrows();
+  setTimeout(updateArrows, 300);
+}
+
+/* ============================================================
+   初始化
+   ============================================================ */
+(function init(){
+  loadState();
+  renderStamina();
+  renderTimeline();
+  initTimeline();
+
+  $('#navHome').addEventListener('click', goHome);
+  $('#navReset').addEventListener('click', restartJourney);
+
+  // 允许在控制台/自动化测试中调用
+  window.openChapter = openChapter;
+  window.openSummary = openSummary;
+  window.goHome = goHome;
+})();
+</script>
+</body>
+</html>
